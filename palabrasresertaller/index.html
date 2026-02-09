@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Analizador Léxico - JavaScript Local</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .negrita { font-weight: bold; text-transform: uppercase; }
+        table { border-collapse: collapse; width: 500px; margin-top: 15px; }
+        td { padding: 5px 0; border: none; font-size: 16px; }
+        .separador { padding-top: 25px; }
+        .total { font-weight: bold; margin-top: 30px; font-size: 1.2em; }
+        textarea { width: 100%; max-width: 500px; padding: 10px; }
+        button { padding: 8px 15px; cursor: pointer; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+    <h3 class="negrita">Entrada de código:</h3>
+    <textarea id="entrada" rows="6">for do while
+if else
+( )</textarea>
+    <br>
+    <button onclick="analizar()">Analizar</button>
+
+    <div id="resultado"></div>
+
+    <script>
+        function analizar() {
+        const texto = document.getElementById("entrada").value;
+
+        const diccionario = {
+        "for":   "&lt;Reservada For&gt;",
+        "do":    "&lt;Reservada Do&gt;",
+        "while": "&lt;Reservada While&gt;",
+        "if":    "&lt;Reservada If&gt;",
+        "else":  "&lt;Reservada Else&gt;",
+        "(":     "&lt;Parentesis de abertura&gt;",
+        ")":     "&lt;Parentesis de cierre&gt;"
+    };
+
+        const lineas = texto.split("\n");
+        let html = "<table>";
+        let totalTokens = 0;
+
+        lineas.forEach((contenido, index) => {
+            const numLinea = index + 1;
+
+            const limpio = contenido
+                .replace(/\(/g, " ( ")
+                .replace(/\)/g, " ) ");
+
+            const palabras = limpio.trim().split(/\s+/).filter(p => p !== "");
+
+            let tokensLinea = [];
+
+            palabras.forEach(p => {
+                const tipo = diccionario[p.toLowerCase()];
+                if (tipo) {
+                    tokensLinea.push({ tipo, simbolo: p });
+                    totalTokens++;
+                }
+            });
+
+            if (tokensLinea.length > 0) {
+                html += `
+                    <tr>
+                        <td class="negrita separador">LINEA ${numLinea}</td>
+                        <td class="negrita separador">SIMBOLO</td>
+                    </tr>
+                `;
+
+                tokensLinea.forEach(t => {
+                    html += `
+                        <tr>
+                            <td>${t.tipo}</td>
+                            <td>${t.simbolo}</td>
+                        </tr>
+                    `;
+                });
+            }
+        });
+
+        html += "</table>";
+        html += `<div class="total">Total: ${totalTokens}</div>`;
+        document.getElementById("resultado").innerHTML = html;
+    }
+    </script>
+
+</body>
+</html>
